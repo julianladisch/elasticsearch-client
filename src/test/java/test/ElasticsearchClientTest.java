@@ -33,7 +33,7 @@ class ElasticsearchClientTest {
       DockerImageName.parse("opensearchproject/opensearch:2.16.0"));
 
   @Test
-  void test() throws IOException {
+  void elasticsearch() throws IOException {
     final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
     credentialsProvider.setCredentials(
         AuthScope.ANY,
@@ -48,6 +48,17 @@ class ElasticsearchClientTest {
                 httpClientBuilder.setSSLContext(elasticsearch.createSslContextFromCa());
                 return httpClientBuilder;
             })
+            .build();
+
+    Response response = client.performRequest(new Request("GET", "/_cluster/health"));
+    assertEquals(200, response.getStatusLine().getStatusCode(), () -> response.toString());
+  }
+
+  @Test
+  void opensearch() throws IOException {
+    RestClient client =
+        RestClient
+            .builder(HttpHost.create("http://" + opensearch.getHttpHostAddress()))
             .build();
 
     Response response = client.performRequest(new Request("GET", "/_cluster/health"));
